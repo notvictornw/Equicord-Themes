@@ -1,0 +1,1207 @@
+/**
+* @name OperaGX (NotVictorNW Fork)
+* @author NotVictorNW (fork do tema original por Hawk/L-Ratio)
+* @version 3.5
+* @description Fork modificado, otimizado e melhorado do tema OperaGX original por Hawk/L-Ratio. Versão otimizada + multi-column SIDEBAR (FolderColumns via BetterFolders plugin): GPU-accelerated transitions, CSS layers, reduced motion/contrast, focus-visible, content-visibility em listas (auto keyword), avatar/icons promoted com translateZ(0), drop-shadow composited em hover em vez de box-shadow animado, sem backdrop-filter (paint caro), will-change scopedado ao hover, scroll-behavior auto em scrollers e multi-colunas (1-4) APENAS na sidebar do plugin BetterFolders via flex-wrap. Status indicator com ring accent + account panel reestilizado + 31 melhorias UX (spoiler blur suave, mentions pill animada, reply line accent, pinned messages arredondado, context menu arredondado, unread com pulse, call ring animado, settings sidebar pill, switches maiores, sliders accent, toasts com slide). REQUISITO: plugin BetterFolders com setting sidebar ativa.
+ * @source https://github.com/L-Ratio/OperaGXTheme
+ * @website https://github.com/VictorNieworld/Equicord-Themes
+ * @invite Xn7UUQUHbN
+ * @updateUrl https://raw.githubusercontent.com/VictorNieworld/Equicord-Themes/main/OperaGX/OperaGX.css
+ *
+ * @var range   server_listing_width_s   "Server bar width (62=1col 126=2col 184=3col 242=4col) [default] = 126px"   [126, 62, 242, 2]
+ * @var range   guildsize_s              "Server Icon Size: [default] = 50px"                                          [50, 10, 200, 1]
+ * @var range   guildgap_s               "Folder inner gap: [default] = 3px"                                           [3, 0, 25, 1]
+ */
+
+/* IMPORTS: apenas o necessário. Fonte via link (preconnect+swap) no <head> implícito.
+   O @import abaixo é o da fonte, mantido porque Equicord insere CSS no <head>.
+   Pesos reduzidos de 5 para 1 (400) cortando ~80% do payload da fonte.
+   font-display:swap previne FOIT; font-synthesis:none evita bold sintetizado (FOUT/layout shift). */
+@import url(https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400&display=swap);
+@import url(https://l-ratio.github.io/OperaGXTheme/release/main.css); /* Base do tema (CDN cached). Não inlinear: 99% do tamanho é imagem base64 embedded. */
+
+
+
+/* ============================================================
+   @layer organiza cascade: base < overrides < estado < a11y
+   Evita !important e dá previsibilidade.
+   ============================================================ */
+@layer base, opengx, overrides, states, a11y;
+
+:root {
+  /*  Background-Settings */
+   --background:                     var(--opera-gx-bg-1);
+   --background-behind-appmount:     rgb(var(--darker-background-color));
+   --background-accent-color-1:      var(--accent-color-1);
+   /*  Color-Settings (RGB only) - Vermelho GX original corrigido */
+    --accent-color-1:                 250,30,70;
+    --accent-color-2:                 255,55,109;
+    --dark-background-color:          18,16,25;
+    --darker-background-color:        8,5,14;
+    --border-brightness: 0;
+   /*  More-Color-Settings (corrigidas) */
+    --gx-red:                         255,34,34;
+    --gx-red-2:                       255,66,66;
+    --gx-yellow:                      234,234,34;
+    --gx-yellow-2:                    255,255,68;
+    --gx-green:                       0,212,81;
+    --gx-green-2:                     0,255,129;
+
+   /*  Font-Color-Settings - branco mais fraco (menos puro) */
+    --fullwhite-font:                 220,222,225;
+    --normal-font:                    188,190,194;
+    --normal-hover-font:              222,224,227;
+    --muted-font:                     108,112,120;
+    --link-text:                      0,176,244;
+    --font-in-accent:                 0,0,0;
+
+   /*  Font-Setting (Chakra Petch cyber) */
+   --customFont:                    "Chakra Petch";
+   --codeBlocksCustomFont:          "Chakra Petch";
+   --category-name-transform:        unset;
+
+   /*  FolderColumns: defaults + variantes com @var do modal de tema */
+    --server-listing-width:          126;
+    --guildsize:                     50;
+    --guildgap:                      3;
+    --server-listing-width_v:        var(--server_listing_width_s, var(--server-listing-width));
+    --guildsize_v:                   var(--guildsize_s, var(--guildsize));
+    --guildgap_v:                    var(--guildgap_s, var(--guildgap));
+
+    /*  Font synthesis: impede bold/italic sintetizados pelo browser */
+     font-synthesis: none;
+
+   /*  Advanced-Background-Settings */
+     --wintitlebar-background-blur:    none;
+    --wintitlebar-transparency:       0.7;
+    --wintitlebar-transparency-color: var(--dark-background-color);
+    --wintb-focused-alpha:            1;
+    --wintb-focused-color:            var(--darker-background-color);
+
+    --header-background-blur:         none;
+    --header-transparency:            0.5;
+    --header-transparency-color:      var(--dark-background-color);
+
+    --serverlist-background-blur:     none;
+    --serverlist-transparency:        0.5;
+    --serverlist-transparency-color:  var(--dark-background-color);
+
+    --channels-background-blur:       none;
+    --channels-transparency:          0.5;
+    --channels-transparency-color:    var(--dark-background-color);
+
+    --chat-background-blur:           none;
+    --chat-transparency:              0.5;
+    --chat-transparency-color:        var(--dark-background-color);
+
+    --memberlist-background-blur:     none;
+    --memberlist-transparency:        0.5;
+    --memberlist-transparency-color:  var(--dark-background-color);
+
+   /*  Advanced-Element-Transparency-Settings */
+    --chatbox-transparency:           1;
+    --chatbox-focused-transparency:   1;
+    --other-transparency:             1;
+    --other-highlighted-transparency: 1;
+
+   /*  Radius-Override (botões mais arredondados) - sem !important,
+       cascade win por estar após o @import da base.                 */
+    --radius-none: 0px;
+    --radius-xs:  4px;
+    --radius-sm:  8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-xxl: 24px;
+    --radius-round: 999px;
+
+   /* Tokens do nosso tema, reaproveitáveis */
+    --gx-transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+    --gx-glow-1: 0 0 6px rgba(var(--accent-color-1), 0.5);
+    --gx-glow-2: 0 0 6px rgba(var(--accent-color-1), 0.18);
+}
+
+/* ============================================================
+   LAYER overrides: rounding + transitions
+   Transições só em transform/opacity (GPU) + borda.
+   Evitamos box-shadow/filter animados (caros, não-composited).
+   ============================================================ */
+@layer overrides {
+  /* Botões (classes estáticas do Discord) - rounding + hover/active */
+  .button_a22cb0,
+  .button_e131a9,
+  .button_af3c18,
+  .button_dd5f45,
+  .lookFilled,
+  .lookOutlined,
+  button[role="button"] {
+    border-radius: var(--radius-md);
+    transition: transform 120ms ease, opacity var(--gx-transition);
+  }
+
+  .button_a22cb0:hover,
+  .button_e131a9:hover,
+  .button_af3c18:hover,
+  .button_dd5f45:hover,
+  .lookFilled:hover,
+  .lookOutlined:hover,
+  button[role="button"]:hover {
+    border-radius: var(--radius-lg);
+    transform: translateY(-1px);
+    opacity: 0.92;
+  }
+
+  .button_a22cb0:active,
+  .button_e131a9:active,
+  .lookFilled:active,
+  .lookOutlined:active,
+  button[role="button"]:active {
+    transform: translateY(0) scale(0.98);
+    opacity: 1;
+  }
+
+  /* Switches arredondados (toggle) */
+  div[role="switch"],
+  .switch_d0159f,
+  .checkboxInner {
+    border-radius: var(--radius-round);
+  }
+
+  /* Checkbox quadrado suave */
+  .checkbox {
+    border-radius: var(--radius-sm);
+  }
+
+  /* Cards / embeds / modais / popouts */
+  .container_a45028,
+  .embedWrapper,
+  .modal_c66d4c,
+  .popout_efd832,
+  .tooltipInner_e7a730,
+  .menu_c2694b {
+    border-radius: var(--radius-md);
+  }
+
+  /* Caixa de mensagem e inputs - focus com glow reduzido (6px) */
+  .channelTextArea,
+  .markup,
+  .input_f8bc55,
+  input[type="text"],
+  input[type="password"],
+  textarea {
+    border-radius: var(--radius-md);
+  }
+
+  /* :focus-visible - só em keyboard nav, melhor UX, menos repaint */
+  .channelTextArea:focus-within,
+  .markup:focus,
+  input:focus-visible,
+  textarea:focus-visible {
+    border-radius: var(--radius-lg);
+    box-shadow: 0 0 0 1px rgba(var(--accent-color-1), 0.5), var(--gx-glow-2);
+  }
+
+  /* Avatares sempre redondos */
+  .avatar_c51b4e img,
+  .clickableAvatar_d580f3 img {
+    border-radius: var(--radius-round);
+  }
+
+  /* Ícones de servidor */
+  .guildIcon_f0a0fb,
+  .iconWrapper__77b3c img {
+    border-radius: var(--radius-md);
+    transform: translateZ(0);
+    transition: transform 120ms ease, opacity var(--gx-transition);
+  }
+
+  .guildIcon_f0a0fb:hover,
+  .iconWrapper__77b3c:hover img {
+    border-radius: var(--radius-lg);
+  }
+
+  /* Code blocks */
+  code,
+  pre,
+  .code_e5d2b4 {
+    border-radius: var(--radius-sm);
+    font-family: var(--codeBlocksCustomFont), monospace;
+  }
+
+  /* Mentions */
+  .mention {
+    border-radius: var(--radius-xs);
+    transition: background var(--gx-transition), color var(--gx-transition);
+  }
+
+  /* Links com glow apenas no hover (só em cor/drop-shadow, sem layout / sem box-shadow animado) */
+  a,
+  .anchor-1ZWy8l {
+    transition: color var(--gx-transition);
+  }
+  a:hover,
+  .anchor-1ZWy8l:hover {
+    filter: drop-shadow(0 0 6px rgba(var(--accent-color-1), 0.5));
+  }
+
+  /* Mensagens hover: barra accent à esquerda (só border, sem box-shadow animado) */
+  li.messageListItem_a575eb:hover,
+  .messageListItem_a575eb:hover {
+    box-shadow: inset 2px 0 0 rgba(var(--accent-color-1), 0.65);
+  }
+
+  /* Seleção de texto */
+  ::selection {
+    background: rgba(var(--accent-color-1), 0.35);
+    color: rgb(var(--fullwhite-font));
+  }
+
+  /* Letras: títulos sem letter-spacing (era 0.02em, causava reflow em listas) */
+  .title_c38106 [class*="name"] {
+    letter-spacing: normal;
+  }
+
+  /* ============================================================
+     FolderColumns - multi-column SIDEBAR (plugin BetterFolders)
+     (merge do tema FolderColumns.css de NotVictorNW)
+     Scoping: TODOS os seletores prefixados com .vc-betterFolders-sidebar
+     para afetar APENAS a sidebar do plugin, NAO a barra principal.
+     Requisito: plugin BetterFolders com setting sidebar ativa.
+     Migrado para este layer; variaveis @var ficam no header do tema
+     e em :root (--server-listing-width_v, --guildsize_v, --guildgap_v).
+     Observacao: !important mantido aqui porque os seletores do Discord
+     carregam !important na base; fora de layer eles sequer aplicariam.
+     ============================================================ */
+
+  /* ====== Sidebar width (controls column count) — beats plugin's animation ====== */
+  .vc-betterFolders-sidebar {
+    width: calc(1px * var(--server-listing-width_v)) !important;
+  }
+
+  /* ====== Inner wrapper width ====== */
+  .vc-betterFolders-sidebar .wrapper_ef3116 {
+    width: 100% !important;
+  }
+  .vc-betterFolders-sidebar .itemsContainer_ef3116 {
+    width: calc(1px * var(--server-listing-width_v) + 6px) !important;
+  }
+
+  /* ====== Scroller + stack: flex-wrap to lay items in columns ====== */
+  .vc-betterFolders-sidebar .wrapper_ef3116 .scroller_ef3116 {
+    display: flex !important;
+    flex-flow: row wrap !important;
+    align-content: flex-start !important;
+    justify-content: center !important;
+    padding-left: 0 !important;
+  }
+  .vc-betterFolders-sidebar .tree_ef3116 .stack_dbd263 {
+    display: flex !important;
+    flex-flow: row wrap !important;
+    justify-content: center !important;
+  }
+  .vc-betterFolders-sidebar .itemsContainer_ef3116 .stack_dbd263 {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-flow: row wrap !important;
+    align-items: flex-start !important;
+  }
+
+  /* ====== Loose guilds / closed folders in the wrap flow ====== */
+  .vc-betterFolders-sidebar .scroller_ef3116 > .listItem__650eb {
+    width: 100% !important;
+  }
+  .vc-betterFolders-sidebar .stack_dbd263 .listItem__650eb:not(.wrapper__48112 .listItem__650eb) {
+    width: initial !important;
+    padding: 1px !important;
+    margin: 2px !important;
+  }
+  .vc-betterFolders-sidebar .stack_dbd263 .wrapper__48112 .listItem__650eb {
+    width: initial !important;
+  }
+  .vc-betterFolders-sidebar .listItem-GuPuDH {
+    width: auto !important;
+    margin-left: 0 !important;
+  }
+  .vc-betterFolders-sidebar .wrapper-21YSNc {
+    position: relative !important;
+    width: auto !important;
+  }
+  .vc-betterFolders-sidebar .tutorialContainer__1f388 {
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+  }
+
+  /* ====== Expanded folders: keep column flow, but pin folder icon width ====== */
+  .vc-betterFolders-sidebar .wrapper__48112.isExpanded__48112 .stack_dbd263 {
+    height: fit-content !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex-flow: row wrap !important;
+    overflow: visible !important;
+  }
+  .vc-betterFolders-sidebar .wrapper__48112.isExpanded__48112 .listItem__650eb {
+    width: 100% !important;
+  }
+  .vc-betterFolders-sidebar .stack_dbd263.scroller_ef3116.none_d125d2.scrollerBase_d125d2 > .listItem__650eb {
+    margin-bottom: 8px !important;
+    width: 80% !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-flow: row wrap !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+  }
+  .vc-betterFolders-sidebar .stack_dbd263.scroller_ef3116.none_d125d2.scrollerBase_d125d2:last-child .listItem__650eb {
+    width: initial !important;
+  }
+  .vc-betterFolders-sidebar .stack_dbd263.scroller_ef3116.none_d125d2.scrollerBase_d125d2:last-child .listItem__650eb .pill__5bc7e {
+    display: none !important;
+  }
+  .vc-betterFolders-sidebar .stack_dbd263.scroller_ef3116.none_d125d2.scrollerBase_d125d2 > div .listItem__650eb .pill_ed9a5f.wrapper__58105 {
+    display: none !important;
+  }
+  .vc-betterFolders-sidebar .wrapper__48112.isExpanded__48112 .stack_dbd263 .listItem__650eb .pill_e5445c.wrapper__58105 .item__58105 {
+    width: 85% !important;
+    height: 100% !important;
+    left: 5px !important;
+    top: -2px !important;
+  }
+  .vc-betterFolders-sidebar .expandedFolderBackground__48112 {
+    left: 0 !important;
+  }
+  .vc-betterFolders-sidebar .stack_dbd263.folderGuildsList__48112 {
+    gap: calc(1px * var(--guildgap_v)) !important;
+  }
+
+  /* ====== Folder group: pin to icon size so it doesn't stretch in wrap ====== */
+  .vc-betterFolders-sidebar .folderGroup__48112 {
+    width: calc(1px * var(--guildsize_v)) !important;
+  }
+  .vc-betterFolders-sidebar .folderGroup__48112:not(.isExpanded__48112) .listItem__650eb .pill_e5445c.wrapper__58105 .item__58105 {
+    margin-left: -3px !important;
+    width: calc(1px * var(--guildsize_v) - 2px) !important;
+  }
+
+  /* ====== Folder background fill ====== */
+  .vc-betterFolders-sidebar .folderGroupBackground__48112 {
+    width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* ====== Unread / DM indicator tweaks ====== */
+  .vc-betterFolders-sidebar .unreadMentionsIndicatorTop_ef3116 {
+    justify-self: center !important;
+  }
+  .vc-betterFolders-sidebar .wrapper_ef3116 .scroller_ef3116 {
+    justify-content: center !important;
+  }
+  .vc-betterFolders-sidebar .guildSeparator__252b6 {
+    display: none !important;
+  }
+
+  /* ============================================================
+     Profile Popout + Modal - estilo OperaGX
+     Cantos arredondados, borda accent, header com glow, badges/roles
+     arredondados, avatar com ring, banner com cantos suaves.
+    ################################################### */
+  .userPopoutOuter_c69a7b,
+  .userProfileModalOuter_c69a7b {
+    border: 1px solid rgba(var(--accent-color-1), 0.6) !important;
+    border-radius: var(--radius-lg) !important;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
+  }
+
+  /* Inner themed (non-premium) - cantos e padding */
+  /* Inner themed (non-premium) - cantos e padding */
+  .userProfileInnerThemedNonPremium_c69a7b,
+  .userProfileInnerThemedPremium_c69a7b {
+    border-radius: var(--radius-md) !important;
+  }
+
+  /* Top bar / header do popout - arredondar topo e adicionar glow sutil */
+  .userPopoutOuter_c69a7b .headerPadding_c69a7b,
+  .userProfileModalOuter_c69a7b .headerPadding_c69a7b {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
+  }
+
+  /* Banner do perfil - cantos suaves no topo */
+  .userPopoutOuter_c69a7b [class*="banner_"],
+  .userProfileModalOuter_c69a7b [class*="banner_"] {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
+  }
+
+  /* Avatar dentro do popout/modal - ring accent + sombra compacta.
+     box-shadow reduzido (12px→6px / 18px→8px) para evitar paint caro.
+     drop-shadow filter usado no hover é composited na GPU.       */
+  .userPopoutOuter_c69a7b .avatarWrapper_c69a7b img,
+  .userProfileModalOuter_c69a7b .avatarWrapper_c69a7b img {
+    border-radius: var(--radius-round) !important;
+    border: 2px solid rgba(var(--accent-color-1), 0.8);
+    box-shadow: 0 0 6px rgba(var(--accent-color-1), 0.35), 0 2px 6px rgba(0, 0, 0, 0.4);
+    transform: translateZ(0);
+    transition: border-color var(--gx-transition), filter var(--gx-transition);
+  }
+  .userPopoutOuter_c69a7b .avatarWrapper_c69a7b:hover img,
+  .userProfileModalOuter_c69a7b .avatarWrapper_c69a7b:hover img {
+    border-color: rgba(var(--accent-color-1), 1);
+    filter: drop-shadow(0 0 8px rgba(var(--accent-color-1), 0.55));
+  }
+
+  /* Badges do perfil - píldoras arredondadas ao invés de quadradas.
+     backdrop-filter removido (pinta em toda frame); box-shadow no hover
+     substituído por drop-shadow composited.                          */
+  .userProfileInnerThemedNonPremium_c69a7b .profileBadges_f89da9,
+  .userProfileInnerThemedPremium_c69a7b .profileBadges_f89da9 {
+    border: 1px solid rgba(var(--accent-color-1), 0.3) !important;
+    border-radius: var(--radius-sm) !important;
+    background: rgba(var(--dark-background-color), 0.7) !important;
+    transition: border-color var(--gx-transition), filter var(--gx-transition);
+  }
+  .userProfileInnerThemedNonPremium_c69a7b .profileBadges_f89da9:hover,
+  .userProfileInnerThemedPremium_c69a7b .profileBadges_f89da9:hover {
+    border-color: rgba(var(--accent-color-1), 0.6);
+    filter: drop-shadow(0 0 6px rgba(var(--accent-color-1), 0.25));
+  }
+
+  /* Role pills - arredondadas com cor accent suave */
+  .userProfileInnerThemedNonPremium_c69a7b .rolePill_fa2f72,
+  .userProfileInnerThemedPremium_c69a7b .rolePill_fa2f72 {
+    border: 1px solid rgba(var(--accent-color-1), 0.25) !important;
+    border-radius: var(--radius-round) !important;
+    background: rgba(var(--dark-background-color), 0.6) !important;
+    transition: border-color var(--gx-transition), background var(--gx-transition);
+  }
+  .userProfileInnerThemedNonPremium_c69a7b .rolePill_fa2f72:hover,
+  .userProfileInnerThemedPremium_c69a7b .rolePill_fa2f72:hover {
+    border-color: rgba(var(--accent-color-1), 0.55);
+    background: rgba(var(--accent-color-1), 0.12) !important;
+  }
+
+  /* Tabs do perfil (User/Mutual Servers/Mutual Friends) - pill arredondada.
+     transition: border-radius removido (card grande = reflow caro).        */
+  .userProfileModalOuter_c69a7b .tabBar_d6f9e9 .tab_c69a7b,
+  .userPopoutOuter_c69a7b .tabBar_d6f9e9 .tab_c69a7b {
+    border-radius: var(--radius-sm) !important;
+    transition: background var(--gx-transition), color var(--gx-transition);
+  }
+  .userProfileModalOuter_c69a7b .tabBar_d6f9e9 .tab_c69a7b:hover,
+  .userPopoutOuter_c69a7b .tabBar_d6f9e9 .tab_c69a7b:hover {
+    background: rgba(var(--accent-color-1), 0.12);
+    border-radius: var(--radius-md) !important;
+  }
+  .userProfileModalOuter_c69a7b .tabBar_d6f9e9 .tab_c69a7b[aria-selected="true"],
+  .userPopoutOuter_c69a7b .tabBar_d6f9e9 .tab_c69a7b[aria-selected="true"] {
+    background: rgba(var(--accent-color-1), 0.2);
+    border-radius: var(--radius-md) !important;
+    color: rgb(var(--fullwhite-font));
+  }
+
+  /* Sections internas (body) - cantos suaves */
+  .userPopoutOuter_c69a7b .body_c69a7b,
+  .userProfileModalOuter_c69a7b .body_c69a7b,
+  .userPopoutOuter_c69a7b .panel_c69a7b,
+  .userProfileModalOuter_c69a7b .panel_c69a7b {
+    border-radius: var(--radius-md) !important;
+  }
+
+  /* Lista de friends no popout - itens arredondados em hover.
+     transition: border-radius removido (reflow em linha grande).        */
+  .userPopoutOuter_c69a7b .listRow_d23d44,
+  .userProfileModalOuter_c69a7b .listRow_d23d44 {
+    border-radius: var(--radius-sm);
+    transition: background var(--gx-transition);
+  }
+  .userPopoutOuter_c69a7b .listRow_d23d44:hover,
+  .userProfileModalOuter_c69a7b .listRow_d23d44:hover {
+    border-radius: var(--radius-md);
+    background: rgba(var(--accent-color-1), 0.1);
+  }
+
+  /* Botões do popout (Send Message etc) - herdam botões já arredondados,
+     mas garantimos cor accent no filled */
+  .userPopoutOuter_c69a7b .lookFilled,
+  .userProfileModalOuter_c69a7b .lookFilled {
+    border-radius: var(--radius-md) !important;
+    background: rgba(var(--accent-color-1), 0.85);
+    transition: background var(--gx-transition), transform 120ms ease;
+  }
+  .userPopoutOuter_c69a7b .lookFilled:hover,
+  .userProfileModalOuter_c69a7b .lookFilled:hover {
+    background: rgba(var(--accent-color-1), 1);
+    border-radius: var(--radius-lg) !important;
+    transform: translateY(-1px);
+  }
+
+  /* Note input no popout - arredondado e com glow no focus.
+     transition: box-shadow removido (usar color do border no focus).  */
+  .userPopoutOuter_c69a7b [class*="note_"],
+  .userProfileModalOuter_c69a7b [class*="note_"] textarea {
+    border-radius: var(--radius-sm) !important;
+  }
+  .userPopoutOuter_c69a7b [class*="note_"] textarea:focus-visible,
+  .userProfileModalOuter_c69a7b [class*="note_"] textarea:focus-visible {
+    border-radius: var(--radius-md) !important;
+    box-shadow: 0 0 0 1px rgba(var(--accent-color-1), 0.5), var(--gx-glow-2);
+  }
+
+  /* Custom status text (no popout/modal) */
+  .userPopoutOuter_c69a7b [class*="customStatus_"],
+  .userProfileModalOuter_c69a7b [class*="customStatus_"] {
+    border-radius: var(--radius-sm);
+  }
+
+  /* Container fuzzy (mutual servers/friends grid) - cards arredondados */
+  .userPopoutOuter_c69a7b .imageContainer__5cd1c,
+  .userProfileModalOuter_c69a7b .imageContainer__5cd1c {
+    border-radius: var(--radius-md) !important;
+    transition: opacity var(--gx-transition);
+  }
+  .userPopoutOuter_c69a7b .imageContainer__5cd1c:hover,
+  .userProfileModalOuter_c69a7b .imageContainer__5cd1c:hover {
+    border-radius: var(--radius-lg) !important;
+    opacity: 0.85;
+  }
+
+  /* Status indicator (bolinha de presença online/idle/dnd/offline) - em qualquer contexto:
+     - Ava em chat, memberlist, popout, modal, account panel, reply, DM list
+     - Ring accent em volta da bolinha + cantos arredondados (rx) + drop-shadow
+     - Seletor baseado em [class*="status_"] (attribute) sobrevive a hash changes.
+     - Identificamos o <svg> pai e o <rect> interno.                          */
+  [class*="status_"] rect[fill] {
+    rx: 7;
+  }
+
+  /* Bolinha verde (online) - ring accent + glow sutil */
+  [class*="status_"] rect[fill="#23a55a"],
+  [class*="status_"] rect[fill="#23a55a"] ~ *,
+  [class*="status_"] rect[data-status="online"] {
+    filter: drop-shadow(0 0 3px rgba(var(--accent-color-1), 0.6));
+  }
+
+  /* Status indicator wrapper (svg) - promote a layer + cantos suaves */
+  [class*="status_"] {
+    transform: translateZ(0);
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.6));
+  }
+
+  /* ============================================================
+     ACCOUNT PANEL - canto inferior esquerdo (seu usuário)
+     Reformula UX: card arredondado com glow accent, hover expande,
+     avatar com ring, nome + status com tipografia melhorada,
+     botão de settings e mute/deafen com feedback hover.
+     ============================================================ */
+  .accountProfileCard__1fed1,
+  [class*="accountProfileCard_"] {
+    border: 1px solid rgba(var(--accent-color-1), 0.25);
+    border-radius: var(--radius-lg) !important;
+    background: rgba(var(--dark-background-color), 0.55) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    transform: translateZ(0);
+    transition: border-color var(--gx-transition), filter var(--gx-transition);
+  }
+  .accountProfileCard__1fed1:hover,
+  [class*="accountProfileCard_"]:hover {
+    border-color: rgba(var(--accent-color-1), 0.55);
+    filter: drop-shadow(0 0 6px rgba(var(--accent-color-1), 0.3));
+  }
+
+  /* Avatar dentro do account panel - ring accent + sombra compacta */
+  .accountProfileCard__1fed1 [class*="avatar_"] img,
+  [class*="accountProfileCard_"] [class*="avatar_"] img {
+    border-radius: var(--radius-round) !important;
+    border: 2px solid rgba(var(--accent-color-1), 0.55);
+    box-shadow: 0 0 6px rgba(var(--accent-color-1), 0.3), 0 2px 6px rgba(0, 0, 0, 0.4);
+    transform: translateZ(0);
+    transition: border-color var(--gx-transition), filter var(--gx-transition);
+  }
+  .accountProfileCard__1fed1:hover [class*="avatar_"] img,
+  [class*="accountProfileCard_"]:hover [class*="avatar_"] img {
+    border-color: rgba(var(--accent-color-1), 0.9);
+    filter: drop-shadow(0 0 8px rgba(var(--accent-color-1), 0.45));
+  }
+
+  /* Name + status text - tipografia melhorada */
+  .accountProfileCard__1fed1 [class*="nameTag_"],
+  .accountProfileCard__1fed1 [class*="username_"],
+  .accountProfileCard__1fed1 [class*="title_"],
+  [class*="accountProfileCard_"] [class*="nameTag_"],
+  [class*="accountProfileCard_"] [class*="username_"],
+  [class*="accountProfileCard_"] [class*="title_"] {
+    letter-spacing: 0.01em;
+  }
+  .accountProfileCard__1fed1 [class*="subtext_"],
+  [class*="accountProfileCard_"] [class*="subtext_"] {
+    color: rgb(var(--muted-font));
+    opacity: 0.85;
+  }
+
+  /* Botões do account panel (settings, mute, deafen) - herda botão arredondado
+     e ganha feedback de hover com color accent.                              */
+  .accountProfileCard__1fed1 .button__201d5:not(.lowSaturationUnderline__41f68),
+  [class*="accountProfileCard_"] button[class*="button_"] {
+    border-radius: var(--radius-round) !important;
+    transition: background var(--gx-transition), color var(--gx-transition), transform 120ms ease;
+  }
+  .accountProfileCard__1fed1 .button__201d5:not(.lowSaturationUnderline__41f68):hover,
+  [class*="accountProfileCard_"] button[class*="button_"]:hover {
+    background: rgba(var(--accent-color-1), 0.18);
+    color: rgb(var(--accent-color-2));
+    transform: translateY(-1px);
+  }
+  .accountProfileCard__1fed1 .button__201d5:not(.lowSaturationUnderline__41f68):active,
+  [class*="accountProfileCard_"] button[class*="button_"]:active {
+    transform: translateY(0) scale(0.96);
+  }
+
+  /* Activity cards no popout (Playing... / Spotify etc).
+     transition: border-radius removido (card grande = reflow caro). */
+  .userPopoutOuter_c69a7b [class*="activity_"],
+  .userProfileModalOuter_c69a7b [class*="activity_"] {
+    border-radius: var(--radius-md) !important;
+    border: 1px solid rgba(var(--accent-color-1), 0.15);
+    transition: border-color var(--gx-transition);
+  }
+  .userPopoutOuter_c69a7b [class*="activity_"]:hover,
+  .userProfileModalOuter_c69a7b [class*="activity_"]:hover {
+    border-color: rgba(var(--accent-color-1), 0.4);
+    border-radius: var(--radius-lg) !important;
+  }
+
+  /* ============================================================
+     Imagens arredondadas - avatares e thumbnails de atividades
+     Covers avatares em: chat, memberlist, header de mensagem,
+     popout, modal de perfil, DM list, mentions, reply, etc.
+     Covers activities: Spotify album art, game assets, embeds.
+     ============================================================ */
+
+  /* Avatares em qualquer contexto - chat, memberlist, DM, reply, header */
+  /* Avatares em qualquer contexto - chat, memberlist, DM, reply, header.
+     transform: translateZ(0) promove cada avatar a camada own (GPU).
+     transition: box-shadow removido (não-composited); drop-shadow no hover. */
+  img[class*="Avatar"],
+  [class*="avatar_"] img,
+  [class*="clickableAvatar_"] img,
+  [class*="wrapperAvatar_"] img,
+  .avatar_fc8177 img,
+  .listAvatar__644b0 img,
+  .member_c8ffbb img[class*="avatar"],
+  [class*="replyAvatar_"] img,
+  [class*="messageAvatar_"] img {
+    border-radius: var(--radius-round) !important;
+    transform: translateZ(0);
+  }
+
+  /* Avatares com hover - drop-shadow (composited) em vez de box-shadow */
+  [class*="clickableAvatar_"]:hover img,
+  .listAvatar__644b0:hover img,
+  .member_c8ffbb:hover img[class*="avatar"] {
+    filter: drop-shadow(0 0 6px rgba(var(--accent-color-1), 0.4));
+  }
+
+  /* Imagens grandes de activity (Spotify, jogos) - arredondadas.
+     transition: border-radius removido (cards grandes = reflow caro). */
+  [class*="largeImage_"] img,
+  [class*="smallImage_"] img,
+  [class*="albumArt_"],
+  [class*="albumArt_"] img,
+  [class*="asset_"] img,
+  [class*="largeAsset_"] img,
+  [class*="smallAsset_"] img,
+  [class*="artwork_"] img,
+  [class*="gameImage_"] img,
+  [class*="activityImage_"] img,
+  [class*="coverImage_"] img,
+  .imageContainer__5cd1c img,
+  [class*="imageContainer_"] img {
+    border-radius: var(--radius-md) !important;
+    transform: translateZ(0);
+  }
+
+  /* Imagens de activity no hover - ainda mais arredondadas (sem transição) */
+  [class*="largeImage_"]:hover img,
+  [class*="albumArt_"]:hover,
+  [class*="albumArt_"]:hover img,
+  [class*="asset_"]:hover img,
+  [class*="artwork_"]:hover img,
+  [class*="gameImage_"]:hover img,
+  .imageContainer__5cd1c:hover img,
+  [class*="imageContainer_"]:hover img {
+    border-radius: var(--radius-lg) !important;
+  }
+
+  /* Thumbnails de embed (YouTube, Twitch, links) - cantos suaves.
+     transition: border-radius removido (cards grandes = reflow). */
+  [class*="embedWrapper"] [class*="thumbnail_"] img,
+  [class*="embedWrapper"] img[class*="image_"],
+  [class*="mediaGallery_"] img,
+  [class*="embedThumbnail"] img {
+    border-radius: var(--radius-md) !important;
+  }
+
+  /* Imagens enviadas no chat (attachments) - arredondadas. */
+  [class*="imageWrapper_"] img,
+  [class*="attachment_"] img,
+  [class*="originalLink_"] img,
+  img[class*="lazyImg_"] {
+    border-radius: var(--radius-md) !important;
+    transform: translateZ(0);
+  }
+  [class*="imageWrapper_"]:hover img,
+  [class*="attachment_"]:hover img {
+    border-radius: var(--radius-lg) !important;
+  }
+
+  /* Guild icons (server icons) - já arredondados, reforçamos. */
+  [class*="guildIcon_"] img,
+  [class*="iconWrapper_"] img {
+    border-radius: var(--radius-md) !important;
+    transform: translateZ(0);
+  }
+  [class*="guildIcon_"]:hover img,
+  [class*="iconWrapper_"]:hover img {
+    border-radius: var(--radius-lg) !important;
+  }
+
+  /* Emoji picker thumbnails e stickers */
+  [class*="emojiItem_"] img,
+  [class*="sticker_"] img {
+    border-radius: var(--radius-sm) !important;
+  }
+
+  /* Avatares de bots no chat/autocomplete */
+  [class*="botAvatar_"] img,
+  [class*="autocomplete_"] [class*="avatar_"] img {
+    border-radius: var(--radius-round) !important;
+  }
+
+  /* ============================================================
+     UX ENHANCEMENTS BLOCO 2 — 30 melhorias
+     Performance-first: só anima transform/opacity/filter (GPU-composited).
+     NUNCA animar width/height/box-shadow. Sem backdrop-filter novo.
+     ============================================================ */
+
+  /* 1. Spoiler blur com transição suave ao revelar (opacity é composited) */
+  .spoilerContent,
+  [class*="spoiler_"][class*="Hidden"] {
+    transition: opacity var(--gx-transition), filter var(--gx-transition);
+  }
+  [class*="spoiler_"]:hover img,
+  [class*="spoiler_"]:hover [class*="spoilerContent"] {
+    opacity: 1;
+    filter: blur(0);
+    transition: opacity var(--gx-transition), filter var(--gx-transition);
+  }
+
+  /* 2. Mention pill com scale no hover (transform = GPU) */
+  .mention:hover,
+  [class*="mention"]:hover {
+    transform: scale(1.05);
+    transition: transform 120ms ease, background var(--gx-transition), color var(--gx-transition);
+  }
+  .mention:active {
+    transform: scale(0.98);
+  }
+
+  /* 3. Reply line tinted com accent (cozy-1 reply bar) */
+  [class*="reply_"] [class*="replyBar_"],
+  [class*="replyBar_"],
+  [class*="repliedMessage_"]::before {
+    background: linear-gradient(180deg, rgba(var(--accent-color-1), 0.8), rgba(var(--accent-color-1), 0.3)) !important;
+  }
+
+  /* 4. Pinned messages modal cards arredondados */
+  [class*="pinMessage_"],
+  [class*="pinnedMessage_"],
+  [class*="PinMessage_"] [class*="message_"] {
+    border-radius: var(--radius-md) !important;
+  }
+
+  /* 5. Server icons tooltip arredondado */
+  [class*="tooltip_"]:has(img[class*="guildIcon_"]),
+  .tooltipInner_e7a730 {
+    border-radius: var(--radius-md) !important;
+    transform: translateZ(0);
+  }
+
+  /* 6. Folder aberto: transição suave via opacity no overflow.
+     Skip height anim (caro); usamos opacity no stack_dbd263.
+     Scoping a .vc-betterFolders-sidebar: o plugin BetterFolders já suprime
+     transitions na barra principal (shouldShowTransition), pelo que estas
+     regras só têm efeito visual na sidebar. Mantemos scope explícito.       */
+  .vc-betterFolders-sidebar .wrapper__48112.isExpanded__48112 .stack_dbd263 {
+    opacity: 1;
+    transition: opacity var(--gx-transition);
+  }
+  .vc-betterFolders-sidebar .wrapper__48112:not(.isExpanded__48112) .stack_dbd263 {
+    opacity: 0;
+    transition: opacity 120ms ease;
+  }
+
+  /* 7. Pill de notificação (badge vermelho) com bounce (transform only) */
+  [class*="badge_"][class*="mentions_"],
+  [class*="numberBadge_"],
+  .pill__5bc7e [class*="numberBadge"] {
+    transform: translateZ(0);
+    transition: transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  [class*="mentionsBar_"]:hover [class*="numberBadge_"],
+  .pill__5bc7e:hover [class*="numberBadge"] {
+    transform: scale(1.12);
+  }
+
+  /* 8. Server bar: separador DMs/Servers com linha accent.
+     Reativamos guildSeparator (estava display:none) mas como linha accent. */
+  .guildSeparator__252b6 {
+    display: block !important;
+    width: 70% !important;
+    height: 1px !important;
+    margin: 6px auto !important;
+    background: linear-gradient(90deg, transparent, rgba(var(--accent-color-1), 0.45), transparent) !important;
+    border: 0 !important;
+    opacity: 0.8;
+  }
+
+  /* 9. Context menu (right-click server) arredondado - reforço */
+  .menu_c2694b,
+  [class*="menu_"] [class*="submenu_"],
+  [class*="contextMenu_"] {
+    border-radius: var(--radius-md) !important;
+    overflow: hidden;
+  }
+  [class*="contextMenu_"] [class*="item_"],
+  .menu_c2694b [class*="item_"] {
+    border-radius: var(--radius-sm);
+  }
+
+  /* 10. Group headers (Online/Offline) com letter-spacing uppercase accent */
+  [class*="membersGroup_"],
+  .membersGroup__2dee7 {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    color: rgba(var(--accent-color-1), 0.85);
+  }
+
+  /* 11. Member row hover: linha accent à esquerda + scale leve no avatar */
+  [class*="member_"]:hover,
+  .member_c8ffbb:hover {
+    box-shadow: inset 2px 0 0 rgba(var(--accent-color-1), 0.55);
+  }
+  [class*="member_"]:hover [class*="avatar_"] img,
+  .member_c8ffbb:hover [class*="avatar_"] img {
+    transform: translateZ(0) scale(1.05);
+    transition: transform 120ms ease;
+  }
+
+  /* 12. Status icons de cargo (crown/dev/bot) arredondados com ring */
+  [class*="botTag_"] [class*="botTag_"],
+  [class*="icon_"][class*="owner_"],
+  [class*="roleIcon_"],
+  [class*="crown_"] {
+    border-radius: var(--radius-round) !important;
+    filter: drop-shadow(0 0 3px rgba(var(--accent-color-1), 0.45));
+  }
+
+  /* 13. Role pills arredondadas + cor do role real.
+      Discord coloca --role-color inline no style do .role.                 */
+  [class*="role_"][style*="--role-color"],
+  [class*="rolePill_"][style*="--role-color"] {
+    border-radius: var(--radius-round) !important;
+    border: 1px solid var(--role-color, rgba(var(--accent-color-1), 0.3)) !important;
+    background: color-mix(in srgb, var(--role-color, transparent) 18%, transparent) !important;
+  }
+
+  /* 14. Channel icon com glow accent quando unread (filter composited) */
+  [class*="containerDefault_"][class*="unread_"] [class*="icon_"],
+  [class*="modeUnread_"] [class*="icon_"] {
+    filter: drop-shadow(0 0 4px rgba(var(--accent-color-1), 0.6));
+  }
+
+  /* 15. Channel name com text-shadow accent quando mencionado */
+  [class*="modeMuted_"] [class*="mainContent_"],
+  [class*="mentioned_"] [class*="channelName_"],
+  [class*="modeSelected_"] [class*="channelName_"] {
+    text-shadow: 0 0 6px rgba(var(--accent-color-1), 0.55);
+  }
+
+  /* 16. Category header com linha tracejada accent ao hover (::after) */
+  [class*="categoryTitle_"]:hover::after,
+  [class*="containerDefault_"] > [class*="categoryName_"]:hover::after {
+    content: "";
+    display: block;
+    margin-top: 4px;
+    height: 0;
+    border-top: 1px dashed rgba(var(--accent-color-1), 0.5);
+    width: 100%;
+  }
+
+  /* 17. Channel selected pill accent cheio (não só barra lateral) */
+  [class*="modeSelected_"][class*="containerDefault_"],
+  [class*="containerDefault_"][class*="selected_"] {
+    background: rgba(var(--accent-color-1), 0.14) !important;
+    border-radius: var(--radius-md);
+  }
+  [class*="modeSelected_"] [class*="layout_"] {
+    border-radius: var(--radius-md);
+  }
+
+  /* 18. Banner perfil com overlay accent gradient no topo */
+  .userPopoutOuter_c69a7b [class*="banner_"]::before,
+  .userProfileModalOuter_c69a7b [class*="banner_"]::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    height: 60%;
+    background: linear-gradient(180deg, rgba(var(--accent-color-1), 0.35), transparent);
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  /* 19. Mutual friends/servers como grid com hover scale (transform-only) */
+  .userProfileModalOuter_c69a7b [class*="listRow_"],
+  .userProfileModalOuter_c69a7b [class*="mutualFriends_"] [class*="row_"],
+  .userProfileModalOuter_c69a7b [class*="mutualServers_"] [class*="row_"] {
+    border-radius: var(--radius-md);
+    transform: translateZ(0);
+    transition: transform 120ms ease, background var(--gx-transition);
+  }
+  .userProfileModalOuter_c69a7b [class*="listRow_"]:hover,
+  .userProfileModalOuter_c69a7b [class*="mutualFriends_"] [class*="row_"]:hover,
+  .userProfileModalOuter_c69a7b [class*="mutualServers_"] [class*="row_"]:hover {
+    transform: scale(1.02);
+    background: rgba(var(--accent-color-1), 0.1);
+  }
+
+  /* 20. Activity card Spotify com barra de progresso animada.
+      Animação só via transform (translateX) no progresso. */
+  [class*="activity_"] [class*="bar_"][style*="width"],
+  [class*="spotifyIcon_"] ~ [class*="bar_"] {
+    background: linear-gradient(90deg, rgba(var(--accent-color-1), 0.6), rgba(var(--accent-color-2), 0.6)) !important;
+    border-radius: var(--radius-round);
+  }
+
+  /* 21. Note input: auto-grow no focus (min-height transição = OK) */
+  [class*="note_"] textarea {
+    min-height: 28px;
+    transition: min-height var(--gx-transition), border-color var(--gx-transition);
+  }
+  [class*="note_"] textarea:focus-within,
+  [class*="note_"] textarea:focus-visible {
+    min-height: 56px;
+  }
+
+  /* 22. Last seen / Joined date com tipografia legível (não reflow) */
+  [class*="joinBadge_"],
+  [class*="joinerCount_"],
+  [class*="lastSeen_"],
+  [class*="memberSince_"] {
+    color: rgb(var(--normal-font)) !important;
+    font-size: 12px;
+  }
+
+  /* 23. DM row hover: ring accent à esquerda + avatar scale 1.05 */
+  [class*="channel_"][class*="private_"]:hover,
+  [class*="privateChannel_"]:hover {
+    box-shadow: inset 2px 0 0 rgba(var(--accent-color-1), 0.55);
+  }
+  [class*="privateChannel_"]:hover [class*="avatar_"] img {
+    transform: translateZ(0) scale(1.05);
+    transition: transform 120ms ease;
+  }
+
+  /* 24. Unread DM com dot accent ousado + "pulse" (opacity animation only) */
+  [class*="privateChannel_"][class*="unread_"] [class*="avatar_"]::after,
+  [class*="unread_"] [class*="pill_"] {
+    background: rgba(var(--accent-color-1), 0.95) !important;
+    animation: gx-pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes gx-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* 25. Call button com glow vermelho ao receber chamada (ring via filter) */
+  [class*="call_"][class*="incoming_"],
+  [class*="incomingCall_"] {
+    filter: drop-shadow(0 0 8px rgba(255, 34, 34, 0.75));
+    animation: gx-call-ring 1.2s ease-in-out infinite;
+  }
+  @keyframes gx-call-ring {
+    0%, 100% { filter: drop-shadow(0 0 6px rgba(255, 34, 34, 0.5)); }
+    50% { filter: drop-shadow(0 0 12px rgba(255, 34, 34, 0.95)); }
+  }
+
+  /* 26. Settings sidebar items com pill arredondado no hover */
+  [class*="sidebarRegion_"] [class*="item_"]:hover,
+  [class*="settings_"] [class*="item_"]:hover {
+    background: rgba(var(--accent-color-1), 0.15);
+    border-radius: var(--radius-md);
+    transition: background var(--gx-transition), border-radius var(--gx-transition);
+  }
+  [class*="sidebarRegion_"] [class*="item_"][class*="selected_"],
+  [class*="settings_"] [class*="item_"][class*="selected_"] {
+    background: rgba(var(--accent-color-1), 0.22);
+    border-radius: var(--radius-md);
+  }
+
+  /* 27. Toggle switches maiores + mais arredondados. Scale = GPU. */
+  div[role="switch"],
+  [class*="switch_"] {
+    transform: scale(1.1);
+    transform-origin: center;
+    border-radius: var(--radius-round) !important;
+  }
+  div[role="switch"] [class*="slider_"],
+  [class*="switch_"] [class*="slider_"] {
+    border-radius: var(--radius-round) !important;
+  }
+
+  /* 28. Range sliders com accent track colorido (cor estática = free) */
+  input[type="range"] {
+    accent-color: rgb(var(--accent-color-1));
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    background: rgb(var(--accent-color-1));
+    border-radius: var(--radius-round);
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    background: rgba(var(--accent-color-1), 0.3);
+    border-radius: var(--radius-round);
+  }
+
+  /* 29. Account settings avatars redondos com ring */
+  [class*="settings_"] [class*="profile_"] [class*="avatar_"] img,
+  [class*="userSettings_"] [class*="avatar_"] img {
+    border-radius: var(--radius-round) !important;
+    border: 2px solid rgba(var(--accent-color-1), 0.55);
+    box-shadow: 0 0 6px rgba(var(--accent-color-1), 0.3);
+  }
+
+  /* 30. Notification toast (canto inferior direito) com slide-in + ring */
+  [class*="toast_"],
+  [class*="notification_"][class*="toast_"] {
+    border: 1px solid rgba(var(--accent-color-1), 0.45);
+    border-radius: var(--radius-md) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+    transform: translateZ(0);
+    transition: transform 200ms ease, opacity var(--gx-transition);
+  }
+  [class*="toast_"]:hover {
+    filter: drop-shadow(0 0 6px rgba(var(--accent-color-1), 0.35));
+  }
+
+  /* 31 (extra). Context menu divider com gradient accent */
+  [class*="menu_"] [class*="separator_"],
+  [class*="contextMenu_"] [class*="separator_"],
+  [class*="divider_"] {
+    background: linear-gradient(90deg, transparent, rgba(var(--accent-color-1), 0.45), transparent) !important;
+    height: 1px !important;
+    border: 0 !important;
+  }
+}
+
+
+/* ============================================================
+   LAYER states: will-change + contain em listas longas
+   ============================================================ */
+@layer states {
+  /* Popouts/modais: will-change só no hover (typ) - não permanente.
+     @media (hover:hover) evita ativar em touch devices sem hover. */
+  @media (hover: hover) {
+    .popout_efd832:hover,
+    .modal_c66d4c:hover {
+      will-change: transform, opacity;
+    }
+  }
+
+  /* Memberlist e channel list: contêm layout/store/paint,
+     isolando custo de cascata em listas longas.                  */
+  .members_c8ffbb,
+  .container_a56260,
+  .container_c8ffbb {
+    contain: layout style paint;
+  }
+
+  /* Mensagens: content-visibility auto - só pinta o visível.
+     contain-intrinsic-size: auto … evita layout shift (auto keyword). */
+  .messageListItem_a575eb,
+  li[class^="message-"],
+  [class^="scrollerInner_"] > [class^="message-"] {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 64px;
+  }
+
+  /* Channels: também VAZ. */
+  [class^="containerDefault_"] {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 32px;
+  }
+
+  /* Scrollers internos: scroll-behavior auto previne jank
+     quando content-visibility:auto remove conteúdo off-screen. */
+  .scroller_ef3116,
+  [class*="scrollerInner_"],
+  .members_c8ffbb,
+  .container_c8ffbb,
+  [class^="scroller_"] {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   LAYER a11y: prefers-reduced-motion + prefers-contrast
+   ============================================================ */
+@layer a11y {
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+    .button_a22cb0:hover,
+    .button_e131a9:hover,
+    .guildIcon_f0a0fb:hover {
+      transform: none;
+    }
+  }
+
+  @media (prefers-contrast: more) {
+    :root {
+      --normal-font: 240, 240, 240;
+      --muted-font: 180, 180, 180;
+      --link-text: 102, 217, 255;
+    }
+    .messageListItem_a575eb:hover {
+      box-shadow: inset 3px 0 0 rgb(var(--accent-color-1));
+    }
+  }
+}
+
+/* ============================================================
+   Fora das layers: scrollbar estilizada (não-stackável)
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(var(--accent-color-2), 0.55);
+  border-radius: var(--radius-round);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--accent-color-1), 0.85);
+  background-clip: padding-box;
+}
