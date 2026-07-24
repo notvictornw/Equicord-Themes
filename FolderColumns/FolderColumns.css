@@ -5,7 +5,7 @@
  * @version 3.0.0
  * @website https://github.com/NotVictorNW
  * @source https://github.com/NotVictorNW/FolderColumns
- * @updateUrl https://raw.githubusercontent.com/VictorNieworld/Equicord-Themes/main/FolderColumns/FolderColumns.css
+ * @updateUrl https://raw.githubusercontent.com/notvictornw/Equicord-Themes/main/FolderColumns/FolderColumns.css
  *
  * @var range   server_listing_width_s   "Sidebar width (62=1col 126=2col 184=3col 242=4col) [default] = 126px"   [126, 62, 242, 2]
  * @var range   guildsize_s               "Server Icon Size: [default] = 50px"                                        [50, 10, 200, 1]

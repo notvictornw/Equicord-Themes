@@ -8,20 +8,25 @@ Equicord-Themes/
 └── OperaGX/         fork otimizado do OperaGX (L-Ratio)
 ```
 
+## Pré-requisitos
+
+- Equicord instalado — https://github.com/Equicord
+- [BetterFolders](https://github.com/Vendicated/BetterFolders) com a sidebar ativa (apenas para a parte multi-coluna; o resto do OperaGX funciona sem o plugin)
+
 ## Instalar
 
 Modo recomendado — **import online** (auto-update):
 
 1. Equicord > Settings > Themes > "Add theme" / "+".
 2. Cola o URL raw do tema:
-   - `https://raw.githubusercontent.com/VictorNieworld/Equicord-Themes/main/FolderColumns/FolderColumns.css`
-   - `https://raw.githubusercontent.com/VictorNieworld/Equicord-Themes/main/OperaGX/OperaGX.css`
+   - `https://raw.githubusercontent.com/notvictornw/Equicord-Themes/main/FolderColumns/FolderColumns.css`
+   - `https://raw.githubusercontent.com/notvictornw/Equicord-Themes/main/OperaGX/OperaGX.css`
 3. Ativa o tema. Quando houver mudanças no repo, o Equicord atualiza sozinho.
 
 Modo manual (sem auto-update) — copia a pasta do tema para `%AppData%\Equicord\themes`:
 
 ```powershell
-Invoke-WebRequest "https://raw.githubusercontent.com/VictorNieworld/Equicord-Themes/main/OperaGX/OperaGX.css" `
+Invoke-WebRequest "https://raw.githubusercontent.com/notvictornw/Equicord-Themes/main/OperaGX/OperaGX.css" `
   -OutFile "$env:APPDATA\Equicord\themes\OperaGX.theme.css"
 ```
 

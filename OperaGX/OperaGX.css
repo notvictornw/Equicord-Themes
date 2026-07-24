@@ -4,9 +4,9 @@
 * @version 3.5
 * @description Fork modificado, otimizado e melhorado do tema OperaGX original por Hawk/L-Ratio. Versão otimizada + multi-column SIDEBAR (FolderColumns via BetterFolders plugin): GPU-accelerated transitions, CSS layers, reduced motion/contrast, focus-visible, content-visibility em listas (auto keyword), avatar/icons promoted com translateZ(0), drop-shadow composited em hover em vez de box-shadow animado, sem backdrop-filter (paint caro), will-change scopedado ao hover, scroll-behavior auto em scrollers e multi-colunas (1-4) APENAS na sidebar do plugin BetterFolders via flex-wrap. Status indicator com ring accent + account panel reestilizado + 31 melhorias UX (spoiler blur suave, mentions pill animada, reply line accent, pinned messages arredondado, context menu arredondado, unread com pulse, call ring animado, settings sidebar pill, switches maiores, sliders accent, toasts com slide). REQUISITO: plugin BetterFolders com setting sidebar ativa.
  * @source https://github.com/L-Ratio/OperaGXTheme
- * @website https://github.com/VictorNieworld/Equicord-Themes
- * @invite Xn7UUQUHbN
- * @updateUrl https://raw.githubusercontent.com/VictorNieworld/Equicord-Themes/main/OperaGX/OperaGX.css
+ * @website https://github.com/notvictornw/Equicord-Themes
+ * @invite 9EqSdYTyCK
+ * @updateUrl https://raw.githubusercontent.com/notvictornw/Equicord-Themes/main/OperaGX/OperaGX.css
  *
  * @var range   server_listing_width_s   "Server bar width (62=1col 126=2col 184=3col 242=4col) [default] = 126px"   [126, 62, 242, 2]
  * @var range   guildsize_s              "Server Icon Size: [default] = 50px"                                          [50, 10, 200, 1]
