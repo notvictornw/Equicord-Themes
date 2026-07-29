@@ -293,6 +293,12 @@
     align-content: flex-start !important;
     justify-content: center !important;
     padding-left: 0 !important;
+    overflow-y: auto !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+  .vc-betterFolders-sidebar .wrapper_ef3116 .scroller_ef3116::-webkit-scrollbar {
+    display: none !important;
   }
   .vc-betterFolders-sidebar .tree_ef3116 .stack_dbd263 {
     display: flex !important;
